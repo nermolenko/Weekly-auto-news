@@ -1,8 +1,8 @@
-name: Daily Teams Update
+name: Weekly Teams Update
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # Every day at 9 AM UTC
+    - cron: '0 9 * * 3'  # Every Wednesday at 9 AM UTC
   workflow_dispatch:
 
 jobs:
@@ -18,10 +18,9 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests beautifulsoup4
 
-      - name: Send message to Teams
+      - name: Send weekly news to Teams
         env:
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
         run: python send_teams_adaptive_card.py
-
