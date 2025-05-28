@@ -23,4 +23,5 @@ jobs:
       - name: Send message to Teams
         env:
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
-        run: python send_teams_message.py
+        run: python send_teams_adaptive_card.py
+
