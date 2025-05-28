@@ -105,5 +105,5 @@ if __name__ == "__main__":
     if not webhook_url:
         raise ValueError("Missing TEAMS_WEBHOOK_URL environment variable")
 
-    = fetch_article_summaries()
+    articles = fetch_article_summaries()
     send_teams_adaptive_card(webhook_url, articles)
