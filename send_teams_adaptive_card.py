@@ -2,8 +2,41 @@ import requests
 import json
 import os
 from datetime import datetime
+from bs4 import BeautifulSoup
 
-def send_teams_adaptive_card(webhook_url, title, text):
+def fetch_article_summaries():
+    articles = []
+
+    # Automation World
+    aw_url = "https://www.automationworld.com/"
+    aw_response = requests.get(aw_url)
+    aw_soup = BeautifulSoup(aw_response.content, 'html.parser')
+    aw_article = aw_soup.find('div', class_='views-row')
+    aw_title = aw_article.find('h2').text.strip()
+    aw_summary = aw_article.find('div', class_='field-item').text.strip()
+    articles.append({"title": aw_title, "summary": aw_summary})
+
+    # TelcoTitans (AI & Automation)
+    tt_url = "https://www.telcotitans.com/network-and-digital/ai-and-automation"
+    tt_response = requests.get(tt_url)
+    tt_soup = BeautifulSoup(tt_response.content, 'html.parser')
+    tt_article = tt_soup.find('div', class_='article')
+    tt_title = tt_article.find('h2').text.strip()
+    tt_summary = tt_article.find('p').text.strip()
+    articles.append({"title": tt_title, "summary": tt_summary})
+
+    # FlowForma News
+    ff_url = "https://www.flowforma.com/news"
+    ff_response = requests.get(ff_url)
+    ff_soup = BeautifulSoup(ff_response.content, 'html.parser')
+    ff_article = ff_soup.find('div', class_='news-item')
+    ff_title = ff_article.find('h3').text.strip()
+    ff_summary = ff_article.find('p').text.strip()
+    articles.append({"title": ff_title, "summary": ff_summary})
+
+    return articles
+
+def send_teams_adaptive_card(webhook_url, articles):
     adaptive_card = {
         "type": "message",
         "attachments": [
@@ -19,25 +52,36 @@ def send_teams_adaptive_card(webhook_url, title, text):
                             "type": "TextBlock",
                             "size": "Medium",
                             "weight": "Bolder",
-                            "text": title
+                            "text": "🚀 Weekly News Update"
                         },
                         {
                             "type": "TextBlock",
-                            "text": text,
+                            "text": "Here are the top 3 articles from Automation World, TelcoTitans, and FlowForma:",
                             "wrap": True
-                        },
-                        {
-                            "type": "TextBlock",
-                            "spacing": "None",
-                            "size": "Small",
-                            "isSubtle": True,
-                            "text": f"Sent on {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC"
-                        }
-                    ]
-                }
-            }
+                                   }
         ]
     }
+
+    for article in articles:
+        adaptive_card["attachments"][0]["content"]["body"].append({
+            "type": "TextBlock",
+            "size": "Medium",
+            "weight": "Bolder",
+            "text": article["title"]
+        })
+        adaptive_card["attachments"][0]["content"]["body"].append({
+            "type": "TextBlock",
+            "text": article["summary"],
+            "wrap": True
+        })
+
+    adaptive_card["attachments"][0]["content"]["body"].append({
+        "type": "TextBlock",
+        "spacing": "None",
+        "size": "Small",
+        "isSubtle": True,
+        "text": f"Sent on {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC"
+    })
 
     response = requests.post(
         webhook_url,
@@ -56,8 +100,5 @@ if __name__ == "__main__":
     if not webhook_url:
         raise ValueError("Missing TEAMS_WEBHOOK_URL environment variable")
 
-    send_teams_adaptive_card(
-        webhook_url,
-        title="🚀 Daily GitHub Repo Update",
-        text="This is a daily update from the GitHub repository."
-    )
+    articles = fetch_article_summaries()
+    send_teams_adaptive_card(webhook_url, articles)
