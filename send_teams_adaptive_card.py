@@ -37,6 +37,41 @@ def fetch_article_summaries():
     return articles
 
 def send_teams_adaptive_card(webhook_url, articles):
+    card_body = [
+        {
+            "type": "TextBlock",
+            "size": "Medium",
+            "weight": "Bolder",
+            "text": "🚀 Weekly News Update"
+        },
+        {
+            "type": "TextBlock",
+            "text": "Here are the top 3 articles from Automation World, TelcoTitans, and FlowForma:",
+            "wrap": True
+        }
+    ]
+
+    for article in articles:
+        card_body.append({
+            "type": "TextBlock",
+            "size": "Medium",
+            "weight": "Bolder",
+            "text": article["title"]
+        })
+        card_body.append({
+            "type": "TextBlock",
+            "text": article["summary"],
+            "wrap": True
+        })
+
+    card_body.append({
+        "type": "TextBlock",
+        "spacing": "None",
+        "size": "Small",
+        "isSubtle": True,
+        "text": f"Sent on {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC"
+    })
+
     adaptive_card = {
         "type": "message",
         "attachments": [
@@ -47,41 +82,11 @@ def send_teams_adaptive_card(webhook_url, articles):
                     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
                     "type": "AdaptiveCard",
                     "version": "1.2",
-                    "body": [
-                        {
-                            "type": "TextBlock",
-                            "size": "Medium",
-                            "weight": "Bolder",
-                            "text": "🚀 Weekly News Update"
-                        },
-                        {
-                            "type": "TextBlock",
-                            "text": "Here are the top 3 articles from Automation World, TelcoTitans, and FlowForma:",
-                            "wrap": True
-                                   }
+                    "body": card_body
+                }
+            }
         ]
     }
-
-    for article in articles:
-        adaptive_card["attachments"][0]["content"]["body"].append({
-            "type": "TextBlock",
-            "size": "Medium",
-            "weight": "Bolder",
-            "text": article["title"]
-        })
-        adaptive_card["attachments"][0]["content"]["body"].append({
-            "type": "TextBlock",
-            "text": article["summary"],
-            "wrap": True
-        })
-
-    adaptive_card["attachments"][0]["content"]["body"].append({
-        "type": "TextBlock",
-        "spacing": "None",
-        "size": "Small",
-        "isSubtle": True,
-        "text": f"Sent on {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC"
-    })
 
     response = requests.post(
         webhook_url,
@@ -100,5 +105,5 @@ if __name__ == "__main__":
     if not webhook_url:
         raise ValueError("Missing TEAMS_WEBHOOK_URL environment variable")
 
-    articles = fetch_article_summaries()
+    = fetch_article_summaries()
     send_teams_adaptive_card(webhook_url, articles)
