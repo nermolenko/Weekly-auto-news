@@ -11,11 +11,11 @@ def fetch_article_summaries():
     aw_url = "https://www.automationworld.com/"
     aw_response = requests.get(aw_url)
     aw_soup = BeautifulSoup(aw_response.content, 'html.parser')
-    aw_article = aw_soup.find('div', class_='views-row')
+    aw_article = aw_soup.find('article') or aw_soup.find('div', class_='views-row')
 
     if aw_article:
         aw_title = aw_article.find('h2').text.strip() if aw_article.find('h2') else "No title found"
-        aw_summary = aw_article.find('div', class_='field-item').text.strip() if aw_article.find('div', class_='field-item') else "No summary found"
+        aw_summary = aw_article.find('p').text.strip() if aw_article.find('p') else "No summary found"
         articles.append({"title": aw_title, "summary": aw_summary})
     else:
         articles.append({"title": "No article found", "summary": "Could not retrieve article from Automation World."})
@@ -24,7 +24,7 @@ def fetch_article_summaries():
     tt_url = "https://www.telcotitans.com/network-and-digital/ai-and-automation"
     tt_response = requests.get(tt_url)
     tt_soup = BeautifulSoup(tt_response.content, 'html.parser')
-    tt_article = tt_soup.find('div', class_='article')
+    tt_article = tt_soup.find('article') or tt_soup.find('div', class_='article')
 
     if tt_article:
         tt_title = tt_article.find('h2').text.strip() if tt_article.find('h2') else "No title found"
@@ -37,7 +37,7 @@ def fetch_article_summaries():
     ff_url = "https://www.flowforma.com/news"
     ff_response = requests.get(ff_url)
     ff_soup = BeautifulSoup(ff_response.content, 'html.parser')
-    ff_article = ff_soup.find('div', class_='news-item')
+    ff_article = ff_soup.find('article') or ff_soup.find('div', class_='news-item')
 
     if ff_article:
         ff_title = ff_article.find('h3').text.strip() if ff_article.find('h3') else "No title found"
